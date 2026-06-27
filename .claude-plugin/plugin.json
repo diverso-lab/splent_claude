@@ -1,6 +1,6 @@
 {
   "name": "splent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Work at SPLENT speed. Skills that author features end-to-end, set up and run products, and diagnose & fix issues — driving the splent CLI and following framework conventions (blueprints, services, repositories, hooks, tests, per-feature migrations, the feature contract, the SPL/UVL model).",
   "author": {
     "name": "Diverso Lab"

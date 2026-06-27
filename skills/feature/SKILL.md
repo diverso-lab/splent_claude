@@ -73,12 +73,17 @@ Keep it real: implement what the user asked for, not placeholder TODOs.
 
 ## 4 · Contract & config
 
+`feature:contract` and `feature:inject-config` **require an active product** —
+if none is selected yet, run them right after step 6 (`product:select`).
+
 ```bash
 $SPLENT feature:contract splent_feature_<name>        # infer provides/requires
 $SPLENT feature:inject-config splent_feature_<name>   # only if it reads env vars
 ```
-Review the inferred `[tool.splent.contract]`; make sure `requires.features`
-lists every feature you FK into.
+Review the inferred `[tool.splent.contract]`. Inference scans Python imports, so
+a **foreign key referenced as a string** (e.g. `db.ForeignKey("user.id")`) is
+NOT detected as a dependency — set `requires.features` by hand to list every
+feature you FK into (e.g. `features = ["auth"]`).
 
 ## 5 · Tests
 
@@ -87,6 +92,12 @@ Replace the generated `test_placeholder` stubs (see testing.md):
 - an **integration** test for new repository queries (real DB),
 - a **functional** test per new route.
 
+The test DB is **MariaDB/InnoDB with foreign keys enforced**. If your model FKs
+another feature's table (e.g. `user_id → user.id`), you must **create those
+parent rows first** (e.g. `from splent_io.splent_feature_auth.models import User`,
+add + commit a User, use its real id) — otherwise inserts raise IntegrityError
+and the test errors out before asserting. Don't assume `user_id=1` exists.
+
 ## 6 · Wire into the SPL and install into the product
 
 ```bash
@@ -94,6 +105,17 @@ $SPLENT spl:add-feature <spl> splent_feature_<name>   # detached; auto-detects d
 $SPLENT product:select <product>
 $SPLENT feature:add splent-io/splent_feature_<name>   # editable install
 ```
+Notes from real runs:
+- `spl:add-feature` is **interactive** (`Add '<name>'? [Y/n]`) and needs the
+  feature **editable at the workspace root** (a freshly-created one is). Pipe the
+  answer if you can't type: `printf 'Y\n' | … spl:add-feature …`. It scans the
+  source for deps and adds the right `=>` constraints (a string FK like
+  `user.id` IS detected here, even though `feature:contract` misses it).
+- To add an existing **versioned** feature instead, use
+  `feature:attach <org>/<feature> v<version>` (the version needs the `v` prefix);
+  `feature:unlock <org>/<feature>` converts a versioned feature to editable
+  (requires an active product).
+
 Never hand-edit the product's `pyproject.toml` feature lists or the `.uvl` file —
 these commands do it correctly.
 

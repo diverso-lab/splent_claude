@@ -58,12 +58,25 @@ def test_list_for_user_calls_repo():
 ### integration/ — real DB, no HTTP
 Exercise services/repositories against the test database.
 
+The test DB is **MariaDB/InnoDB with foreign keys ENFORCED**. If your model FKs
+another feature's table, create the parent rows first — don't assume `user_id=1`
+exists (the DB is reset empty before each test):
+
 ```python
+from splent_framework.db import db
+
+def _make_user(email):
+    from splent_io.splent_feature_auth.models import User
+    u = User(email=email, password="1234")
+    db.session.add(u); db.session.commit()
+    return u.id
+
 def test_create_and_read(test_client):
     with test_client.application.app_context():
         from splent_io.splent_feature_notes.services import NotesService
+        uid = _make_user("t@example.com")          # satisfy the user_id FK
         svc = NotesService()
-        note = svc.create(title="hi", body="x", user_id=1)
+        note = svc.create(title="hi", body="x", user_id=uid)
         assert svc.get_by_id(note.id).title == "hi"
 ```
 

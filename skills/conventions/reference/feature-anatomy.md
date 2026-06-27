@@ -137,7 +137,14 @@ class NotesRepository(BaseRepository):
         super().__init__(Notes)
 
     def get_by_user(self, user_id: int) -> list[Notes]:
-        return self.model.query.filter_by(user_id=user_id).all()
+        # Add a deterministic tiebreaker (id) when ordering by a coarse column:
+        # created_at is second-precision, so rows in the same second would
+        # otherwise have undefined order.
+        return (
+            self.model.query.filter_by(user_id=user_id)
+            .order_by(Notes.created_at.desc(), Notes.id.desc())
+            .all()
+        )
 ```
 
 ## `services.py`

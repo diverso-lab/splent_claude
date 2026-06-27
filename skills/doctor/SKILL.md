@@ -79,6 +79,25 @@ $SPLENT product:env --generate --merge
 Never edit the workspace `.env` directly — it holds tokens/credentials. Use the
 commands.
 
+### App won't initialize: `ValueError: Unrecognized value for SESSION_TYPE: null`
+The framework doesn't set `SESSION_TYPE` itself — it must come from a **session
+feature**. The product has none selected.
+```bash
+$SPLENT feature:search session     # → splent_feature_session_filesystem / _redis
+```
+Fix: add a session feature to the SPL and the product, then re-derive:
+```bash
+$SPLENT feature:clone splent-io/splent_feature_session_filesystem
+$SPLENT product:select <product>
+$SPLENT feature:attach splent-io/splent_feature_session_filesystem v<version>
+$SPLENT feature:unlock splent-io/splent_feature_session_filesystem   # editable at root
+$SPLENT product:deselect
+printf 'Y\n' | $SPLENT spl:add-feature <spl> splent_feature_session_filesystem
+$SPLENT product:select <product> && $SPLENT product:resolve && $SPLENT product:validate
+```
+(`spl:add-feature` needs the feature editable at the workspace root; that's why
+`feature:unlock` runs first.)
+
 ### App starts but a route/feature misbehaves
 ```bash
 $SPLENT product:routes            # is the route registered & attributed

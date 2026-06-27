@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "diverso-lab",
+  "description": "Diverso Lab plugins for Claude Code — tooling for the SPLENT product line (CLI, framework, catalog, products).",
+  "owner": {
+    "name": "Diverso Lab",
+    "url": "https://github.com/diverso-lab"
+  },
+  "plugins": [
+    {
+      "name": "splent",
+      "source": "./",
+      "category": "workflow",
+      "description": "Work at SPLENT speed: author features end-to-end, set up & run products, and diagnose & fix issues — driving the splent CLI and following framework conventions.",
+      "homepage": "https://docs.splent.io"
+    }
+  ]
+}

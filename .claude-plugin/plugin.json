@@ -1,0 +1,21 @@
+{
+  "name": "splent",
+  "version": "0.1.0",
+  "description": "Work at SPLENT speed. Skills that author features end-to-end, set up and run products, and diagnose & fix issues — driving the splent CLI and following framework conventions (blueprints, services, repositories, hooks, tests, per-feature migrations, the feature contract, the SPL/UVL model).",
+  "author": {
+    "name": "Diverso Lab"
+  },
+  "homepage": "https://docs.splent.io",
+  "repository": "https://github.com/diverso-lab/splent_claude",
+  "license": "CC-BY-4.0",
+  "keywords": [
+    "splent",
+    "diverso-lab",
+    "flask",
+    "spl",
+    "uvl",
+    "feature",
+    "scaffolding",
+    "software-product-line"
+  ]
+}

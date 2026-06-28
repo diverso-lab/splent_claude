@@ -14,6 +14,7 @@ before editing — don't recreate what scaffolding already produced.
 - [`routes.py`](#routespy)
 - [`forms.py`](#formspy)
 - [`hooks.py` & the hook namespace](#hookspy--the-hook-namespace)
+- [Contributing to the main nav](#contributing-to-the-main-nav)
 - [`seeders.py`](#seederspy)
 - [The feature contract](#the-feature-contract-pyprojecttoml)
 - [Archetype file matrix](#archetype-file-matrix)
@@ -237,6 +238,27 @@ Hook API (`splent_framework.hooks.template_hooks`):
 
 Manage hooks with `splent feature:hook:add` / `feature:hook:remove` /
 `feature:hooks`, and inspect wiring with `feature:xray`.
+
+## Contributing to the main nav
+
+A content feature that owns a public page declares **one** entry in the main
+navigation from inside `init_feature(app)` with `register_nav_item` — that's how
+the public menu is *composed from the installed features* instead of hardcoded
+per product. Install the feature → its entry appears; remove it and re-derive →
+it disappears (derivation-time variability).
+
+```python
+from splent_framework.nav.nav_registry import register_nav_item
+
+def init_feature(app):
+    register_nav_item(key="post", label="Blog", href="/blog", order=50)
+```
+
+`key` is unique per feature (idempotent), `order` sorts the menu (default `100`),
+and `icon` is optional. The theme reconciles these base entries with the runtime
+admin **Menus** override and falls back to `SITE_NAV` only if no feature
+registered anything. See [Navigation registry](/cli/feature/nav) for the full
+contract.
 
 ## `seeders.py`
 

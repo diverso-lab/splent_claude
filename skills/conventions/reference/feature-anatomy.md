@@ -15,6 +15,8 @@ before editing — don't recreate what scaffolding already produced.
 - [`forms.py`](#formspy)
 - [`hooks.py` & the hook namespace](#hookspy--the-hook-namespace)
 - [Contributing to the main nav](#contributing-to-the-main-nav)
+- [Shipping CSS/JS (asset registry)](#shipping-cssjs-asset-registry)
+- [Admin-configurable settings](#admin-configurable-settings)
 - [`seeders.py`](#seederspy)
 - [The feature contract](#the-feature-contract-pyprojecttoml)
 - [Archetype file matrix](#archetype-file-matrix)
@@ -258,6 +260,45 @@ def init_feature(app):
 and `icon` is optional. The theme reconciles these base entries with the runtime
 admin **Menus** override and falls back to `SITE_NAV` only if no feature
 registered anything. See [Navigation registry](/cli/feature/nav) for the full
+contract.
+
+## Shipping CSS/JS (asset registry)
+
+Don't hand-write `<link>` tags in a hook or inline `<script>` in a template.
+Drop the file under the feature's `assets/` folder and **declare** it from
+`init_feature(app)` with `register_asset` — the shell composes the page assets
+(deduplicated, ordered) from the installed features. Convention: theme base
+`order~0`, features `~100`, skins `~200`.
+
+```python
+from splent_framework.assets.asset_registry import register_asset
+
+def init_feature(app):
+    register_asset("css", "slider.assets", order=100, subfolder="css", filename="slider.css")
+```
+
+See [Asset registry](/cli/feature/assets) for the full contract.
+
+## Admin-configurable settings
+
+A feature that injects UI declares its admin-editable settings from
+`init_feature(app)` with `register_settings`; the `settings` feature renders a
+generic `/admin/settings/<feature>` panel for free (no per-feature panel code).
+Read the typed values back with `get_config("<feature>")` (keyed by the short
+field key) wherever the feature needs them — e.g. a hook deciding what to render.
+
+```python
+from splent_framework.settings.settings_schema import register_settings
+
+def init_feature(app):
+    register_settings("slider", "Slider", [
+        {"key": "autoplay", "type": "bool", "default": "1", "label": "Autoplay"},
+    ], icon="image")
+```
+
+Field `type` is one of `bool/int/text/color/select` (`select` uses
+`options=[(value, label)]`); keys are namespaced `<feature>_<field>`
+automatically. See [Feature settings](/cli/feature/settings) for the full
 contract.
 
 ## `seeders.py`

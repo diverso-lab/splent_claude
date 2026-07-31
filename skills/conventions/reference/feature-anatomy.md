@@ -348,6 +348,42 @@ hooks = []
 routes = false
 ```
 
+## Settings (`[tool.splent.config]`)
+
+Where a feature declares the variables it reads and their defaults. Not
+`docker/.env.example`: that only exists for features shipping a service, and
+a setting is not infrastructure. Never create a `docker/` directory just to
+hold settings.
+
+```toml
+[tool.splent.config]
+SEARCH_PATH = "search"     # the value is the default
+SEARCH_LIMIT = 20
+SEARCH_NAV = true          # reaches the env as "true"
+SEARCH_PLACEHOLDER = ""    # declare it even when empty; it documents the knob
+```
+
+Keep every default in step with the `os.getenv` fallback in `config.py`, or
+behaviour depends on whether the merge has run.
+
+A **product** uses the same block for the settings it decides differently,
+and only those:
+
+```toml
+# egc_wiki/pyproject.toml
+[tool.splent.config]
+SITE_NAME = "egc.us.es"
+COURSES_NAME_PREFIX = "EGC"
+```
+
+Precedence, weakest first: feature `docker/.env.example` → feature
+`[tool.splent.config]` → product `[tool.splent.config]` → product
+`.env.<env>.example`. Read by both `product:env --merge` and
+`product:build`, so dev and deploy agree. Keys ending in `_HOST_PORT` get
+the product's port offset. Lists become comma separated strings.
+
+Full write-up: `/foundations/feature-settings` in splent_docs.
+
 ## Archetype file matrix
 
 | File / dir            | full | light | service | config |
